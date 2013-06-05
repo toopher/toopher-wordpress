@@ -4,15 +4,15 @@ require_once('toopher-web/toopher-web.php');
 
 
 function toopherGetPairUrlForCurrentUser() {
-    $key = 'aaaaaaaaaa'; //getenv('TOOPHER_CONSUMER_KEY');
-    $secret = 'aaaaaaaaaa'; //getenv('TOOPHER_CONSUMER_SECRET');
-    $baseUrl = 'http://10.0.1.3:8000/v1/';
+    $key = get_option('toopher_api_key');
+    $secret = get_option('toopher_api_secret');
+    $baseUrl = get_option('toopher_api_url');
     error_log('in ajax handler - key, secret is ' . $key . ', ' . $secret);
     $user = wp_get_current_user();
     
     $url = ToopherWeb::pair_iframe_url($user->data->user_login, 60, $baseUrl, $key, $secret);
     $postback = 'toopher_finish_pairing';
-    echo json_encode(array('toopher-req'=> $url, 'toopher-postback'=>$postback));
+    echo json_encode(array('toopher_req'=> $url, 'toopher_postback'=>$postback));
 
     die();  // wordpress sucks.
 }

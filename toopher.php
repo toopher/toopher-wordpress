@@ -7,6 +7,7 @@ define ('TOOPHER_PLUGIN_ID', 'ToopherForWordpress');
 
 require('lib/ajax-endpoints.php');
 require('lib/options.php');
+require('lib/toopher-settings.php');
 
 if(!function_exists('_log')){
   function _log( $message ) {
@@ -31,6 +32,8 @@ if(!class_exists('ToopherWordpress') && !isset($toopherWordpress)) :
         }
     }
     $toopherWordpress = new ToopherWordpress();
+
+
 endif;
 
 
