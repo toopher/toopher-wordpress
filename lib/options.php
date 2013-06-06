@@ -8,6 +8,7 @@ add_action('edit_user_profile', 'toopher_edit_user_options_menu');
 
 function toopher_user_options_menu(){
     $user = wp_get_current_user();
+
     $pairedWithToopher = get_user_meta((int)$user->ID, 't2s_user_paired', true);
 ?>
 <div class="wrap">

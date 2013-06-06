@@ -29,9 +29,24 @@ class ToopherWeb
         return ToopherWeb::getOAuthUrl($baseUrl . 'web/auth', $params, $ttl, $key, $secret);
     }
 
+    public static function validate($secret, $data)
+    {
+        $maybe_sig = $data['toopher_sig'];
+        unset($data['toopher_sig']);
+        return ToopherWeb::signature($secret, $data) === $maybe_sig;
+    }
+
+    public static function signature($secret, $data)
+    {
+        ksort($data);
+        $to_sign = http_build_query($data);
+        $result = base64_encode(hash_hmac('sha1', $to_sign, $secret, true));
+        return $result;
+    }
+
     private static function getOAuthUrl($url, $getParams, $ttl, $key, $secret)
     {
-        $expiresAt = 1000 * (time() + $ttl);
+        $expiresAt = (time() + $ttl);
         $getParams['ttl'] = (string)$expiresAt;
         $oauth = new OAuthConsumer($key, $secret);
         $req = OAuthRequest::from_consumer_and_token($oauth, NULL, 'GET', $url, $getParams);
