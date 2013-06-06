@@ -6,7 +6,7 @@ Plugin Name: Toopher Two-Factor Authentication
 define ('TOOPHER_PLUGIN_ID', 'ToopherForWordpress');
 
 require('lib/ajax-endpoints.php');
-require('lib/options.php');
+require('lib/toopher-user-options.php');
 require('lib/toopher-settings.php');
 
 if(!function_exists('_log')){
