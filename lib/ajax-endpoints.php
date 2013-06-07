@@ -40,5 +40,5 @@ function toopherUpdatePairing() {
 add_action('wp_ajax_toopher_get_pair_url_for_current_user', 'toopherGetPairUrlForCurrentUser');
 add_action('wp_ajax_toopher_update_pairing', 'toopherUpdatePairing');
 error_log('added ajax handler');
-add_action('all', create_function('', 'error_log(current_filter());'));
+//add_action('all', create_function('', 'error_log(current_filter());'));
 ?>
