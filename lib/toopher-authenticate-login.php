@@ -9,7 +9,6 @@ add_filter('authenticate', 'toopher_finish_authenticate_login', 0, 1);
  **/
 
 function toopher_begin_authenticate_login($user){
-    error_log('toopher_begin_authenticate_login');
     if (is_a($user, 'WP_User')){
         if (get_user_meta((int)$user->ID, 't2s_user_paired', true)){
             if(isset($_POST['toopher_authentication_successful']) && ($_POST['toopher_authentication_successful'] === 'true')){
@@ -32,7 +31,6 @@ function toopher_finish_authenticate_login($user){
     }
 
     if(isset($_POST['toopher_sig'])){
-        error_log('toopher_finish_authenticate_login');
         $pending_user_id = $_POST['pending_user_id'];
         $redirect_to = $_POST['redirect_to'];
         unset($_POST['pending_user_id']);
