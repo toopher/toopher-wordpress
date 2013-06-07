@@ -35,7 +35,7 @@ function toopher_finish_authenticate_login($user){
         $redirect_to = $_POST['redirect_to'];
         unset($_POST['pending_user_id']);
         unset($_POST['redirect_to']);
-        $secret = get_option('toopher_api_secret');
+        $secret = get_site_option('toopher_api_secret');
         foreach(array('terminal_name', 'reason') as $toopher_key){
             $_POST[$toopher_key] = strip_wp_magic_quotes($_POST[$toopher_key]);
         }
@@ -60,10 +60,10 @@ function toopher_finish_authenticate_login($user){
 }
 
 function toopher_login_pending($user){
-    $key = get_option('toopher_api_key');
-    $secret = get_option('toopher_api_secret');
-    $baseUrl = get_option('toopher_api_url');
-    $automatedLoginAllowed = get_option('toopher_allow_automated_login', true);
+    $key = get_site_option('toopher_api_key');
+    $secret = get_site_option('toopher_api_secret');
+    $baseUrl = get_site_option('toopher_api_url');
+    $automatedLoginAllowed = get_site_option('toopher_allow_automated_login', true);
     $session_token = wp_generate_password(12, false);
     update_user_meta((int)$user->ID, 't2s_authentication_session_token', $session_token);
     $signed_url = ToopherWeb::auth_iframe_url($user->user_login, 'Log In', 100, $automatedLoginAllowed, $baseUrl, $key, $secret, $session_token);
