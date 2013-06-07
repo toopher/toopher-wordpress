@@ -14,9 +14,13 @@ function toopher_begin_authenticate_login($user){
         error_log('user is ' . var_export(get_object_vars($user), true));
 
         if (get_user_meta((int)$user->ID, 't2s_user_paired', true)){
-            error_log('user should be toopher-authenticated');
-            toopher_login_pending($user);
-            exit();
+            if(isset($_POST['toopher_authentication_successful']) && ($_POST['toopher_authentication_successful'] === 'true')){
+                return $user;
+            } else {
+                error_log('user should be toopher-authenticated');
+                toopher_login_pending($user);
+                exit();
+            }
         }
     }
 
@@ -24,10 +28,34 @@ function toopher_begin_authenticate_login($user){
 }
 
 function toopher_finish_authenticate_login($user){
+    // make sure someone isn't trying to circumvent toopher-auth by submitting the authentication success flag through the browser
+    if(isset($_POST['toopher_authentication_successful'])){
+        unset($_POST['toopher_authentication_successful']);
+    }
+
     if(isset($_POST['toopher_sig'])){
         error_log('toopher_finish_authenticate_login: post is ' . var_export($_POST, true));
         $pending_user_id = $_POST['pending_user_id'];
         $redirect_to = $_POST['redirect_to'];
+        unset($_POST['pending_user_id']);
+        unset($_POST['redirect_to']);
+        $secret = get_option('toopher_api_secret');
+        foreach(array('terminal_name', 'reason') as $toopher_key){
+            $_POST[$toopher_key] = strip_wp_magic_quotes($_POST[$toopher_key]);
+        }
+        if(ToopherWeb::validate($secret, $_POST)){
+            error_log('toopher signature validates');
+            $authGranted = ($_POST['pending'] === 'false') && ($_POST['granted'] === 'true');
+            if($authGranted){
+                error_log('auth granted');
+                $user = get_user_by('id', $pending_user_id);
+                $_POST['redirect_to'] = $redirect_to;
+            }
+            $_POST['toopher_authentication_successful'] = $authGranted ? 'true' : 'false';
+        } else {
+            error_log('toopher signature does not validate!');
+            $user = new WP_Error('Toopher Authentication Failure', __('Toopher API Signature did not match expected value'));
+        }
     }
     return $user;
 }

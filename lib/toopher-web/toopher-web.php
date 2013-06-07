@@ -33,6 +33,7 @@ class ToopherWeb
     {
         $maybe_sig = $data['toopher_sig'];
         unset($data['toopher_sig']);
+        error_log('received signature = ' . $maybe_sig);
         return ToopherWeb::signature($secret, $data) === $maybe_sig;
     }
 
@@ -40,7 +41,9 @@ class ToopherWeb
     {
         ksort($data);
         $to_sign = http_build_query($data);
+        error_log('signing >>> ' . $to_sign . ' <<<');
         $result = base64_encode(hash_hmac('sha1', $to_sign, $secret, true));
+        error_log('calculated signature = ' . $result);
         return $result;
     }
 

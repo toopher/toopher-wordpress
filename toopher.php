@@ -15,6 +15,14 @@ function print_filters_for( $hook = '' ) {
     print '</pre>';
 }
 
+function strip_wp_magic_quotes($s){
+    if (get_magic_quotes_gpc() || function_exists('wp_magic_quotes')){
+        return stripslashes($s);
+    } else {
+        return $s;
+    }
+}
+
 function enqueue_jquery_cookie(){
     wp_enqueue_script('jquery-cookie', '//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js');
 }
