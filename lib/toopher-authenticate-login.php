@@ -72,18 +72,19 @@ function toopher_login_pending($user){
         'pending_user_id' => $user->ID,
         'redirect_to' => $_POST['redirect_to']
     );
-
+    wp_enqueue_script('jquery');
+    wp_enqueue_script('jquery-cookie', '//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js');
 ?>
 <html>
+    <head>
+        <?php wp_head(); ?>
+    </head>
     <body>
         <iframe id='toopher_iframe' toopher_postback='<?php echo wp_login_url() ?>' framework_post_args='<?php echo json_encode($toopher_finish_authenticate_parameters) ?>' toopher_req='<?php echo $signed_url ?>'></iframe>
-<?php
-        wp_enqueue_script('jquery-cookie', '//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js');
-        wp_print_scripts(array('jquery', 'jquery-cookie'));
-?>
         <script>
-<?php include('toopher-web/toopher-web.js'); ?>;
+<?php  include('toopher-web/toopher-web.js'); ?>
         </script>
+<?php get_footer(); wp_footer(); ?>
     </body>
 </html>
 <?php
