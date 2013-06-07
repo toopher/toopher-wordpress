@@ -76,11 +76,13 @@ function toopher_login_pending($user){
 ?>
 <html>
     <body>
-    <iframe id='toopher_iframe' toopher_postback='<?php echo wp_login_url() ?>' framework_post_args='<?php echo json_encode($toopher_finish_authenticate_parameters) ?>' toopher_req='<?php echo $signed_url ?>'></iframe>
-        <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js'> </script>
-        <script src='//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js'> </script>
+        <iframe id='toopher_iframe' toopher_postback='<?php echo wp_login_url() ?>' framework_post_args='<?php echo json_encode($toopher_finish_authenticate_parameters) ?>' toopher_req='<?php echo $signed_url ?>'></iframe>
+<?php
+        wp_enqueue_script('jquery-cookie', '//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js');
+        wp_print_scripts(array('jquery', 'jquery-cookie'));
+?>
         <script>
-            <?php include('toopher-web/toopher-web.js'); ?>;
+<?php include('toopher-web/toopher-web.js'); ?>;
         </script>
     </body>
 </html>
