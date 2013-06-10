@@ -73,7 +73,7 @@ function toopher_login_pending($user){
         'redirect_to' => $_POST['redirect_to']
     );
     wp_enqueue_script('jquery');
-    wp_enqueue_script('jquery-cookie', '//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js');
+    enqueue_jquery_cookie();
 ?>
 <html>
     <head>
