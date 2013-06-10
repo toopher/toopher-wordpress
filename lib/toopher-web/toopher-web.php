@@ -19,38 +19,40 @@ class ToopherWeb
 
         return ToopherWeb::getOAuthUrl($baseUrl . 'web/' . $path, $params, $ttl, $key, $secret);
     }
-    public static function auth_iframe_url($username, $action, $ttl, $automation_allowed=True, $baseUrl, $key, $secret)
+    public static function auth_iframe_url($username, $action, $ttl, $automation_allowed, $baseUrl, $key, $secret, $session_token=Null)
     {
         $params = array(
             'username' => $username,
             'action' => $action,
             'automation_allowed' => $automation_allowed ? 'True' : 'False'
         );
-        return ToopherWeb::getOAuthUrl($baseUrl . 'web/auth', $params, $ttl, $key, $secret);
+        return ToopherWeb::getOAuthUrl($baseUrl . 'web/auth', $params, $ttl, $key, $secret, $session_token);
     }
 
-    public static function validate($secret, $data)
+    public static function validate($secret, $data, $ttl=100)
     {
         $maybe_sig = $data['toopher_sig'];
         unset($data['toopher_sig']);
-        error_log('received signature = ' . $maybe_sig);
-        return ToopherWeb::signature($secret, $data) === $maybe_sig;
+        $signature_valid = ToopherWeb::signature($secret, $data) === $maybe_sig;
+        $ttl_valid = (time() - $ttl) < (int)$data['timestamp'];
+        return $signature_valid && $ttl_valid;
     }
 
     public static function signature($secret, $data)
     {
         ksort($data);
         $to_sign = http_build_query($data);
-        error_log('signing >>> ' . $to_sign . ' <<<');
         $result = base64_encode(hash_hmac('sha1', $to_sign, $secret, true));
-        error_log('calculated signature = ' . $result);
         return $result;
     }
 
-    private static function getOAuthUrl($url, $getParams, $ttl, $key, $secret)
+    private static function getOAuthUrl($url, $getParams, $ttl, $key, $secret, $session_token=Null)
     {
         $expiresAt = (time() + $ttl);
         $getParams['ttl'] = (string)$expiresAt;
+        if ($session_token){
+            $getParams['session_token'] = $session_token;
+        }
         $oauth = new OAuthConsumer($key, $secret);
         $req = OAuthRequest::from_consumer_and_token($oauth, NULL, 'GET', $url, $getParams);
         $req->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $oauth, null);
