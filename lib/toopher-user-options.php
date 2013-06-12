@@ -1,16 +1,78 @@
 <?php
 
-add_action('show_user_profile', 'toopher_user_options_menu');
-add_action('edit_user_profile', 'toopher_edit_user_options_menu');
+add_action('personal_options_update', 'toopher_user_update_options');
+add_action('edit_user_profile_update', 'toopher_user_update_options');
+add_action('show_user_profile', 'toopher_user_options_menu_container');
+add_action('edit_user_profile', 'toopher_edit_user_options_menu_container');
 
-function toopher_user_options_menu(){
-    $user = wp_get_current_user();
+$toopherUserOptions = array(
+    "t2s_authenticate_login" => array("Logging In", true)
+);
+$toopherUserOptionVals = array();
+$refreshToopherUserOptionsCalled = false;
+function refresh_toopher_user_options($uid){
+    global $toopherUserOptions;
+    global $toopherUserOptionVals;
+    global $refreshToopherUserOptionsCalled;
+    if($refreshToopherUserOptionsCalled){
+        return;
+    }
+    $refreshToopherUserOptionsCalled = true;
+    foreach($toopherUserOptions as $key => $val){
+        $userMeta = get_user_meta($uid, $key, true);
+        if ($userMeta === ""){
+            $userMeta = $toopherUserOptions[$key][1];
+        }
+
+        $toopherUserOptionVals[$key] = $userMeta;
+    }
+}
+
+
+function toopher_user_update_options($uid){
+    global $toopherUserOptions;
+    global $toopherUserOptionVals;
+    refresh_toopher_user_options($uid);
+    foreach ($toopherUserOptions as $key => $val){
+        $newVal = 0;
+        if(isset($_REQUEST[$key])){
+            $newVal = true;
+        }
+        if($toopherUserOptionVals[$key] !== $newVal){
+            update_user_meta($uid, $key, $newVal);
+            $toopherUserOptionVals[$key] = $newVal;
+        }
+    }
+}
+
+function toopher_user_options_menu_container($user){
+?>
+<div class="wrap">
+    <h3>Toopher Device Pairing</h3>
+<?php
+    toopher_user_options_menu($user);
+    echo "<h3>Toopher User Authentication Options</h3>";
+    toopher_edit_user_options_menu($user);
+?>
+</div>
+<?php
+}
+function toopher_edit_user_options_menu_container($user){
+?>
+<div class="wrap">
+    <h3>Toopher User Authentication Options</h3>
+<?php
+    toopher_edit_user_options_menu($user);
+?>
+</div>
+<?php
+}
+function toopher_user_options_menu($user){
 
     $pairedWithToopher = get_user_meta((int)$user->ID, 't2s_user_paired', true);
 ?>
 <div class="wrap">
-    <h3>Toopher User Options</h3>
-    <table>
+    <table class="form-table">
         <tr>
             <th><label for='toopher_pairing_status'><?php _e('Toopher Pairing Status') ?></label></th>
             <td><span id='toopher_pairing_status'><?php $pairedWithToopher ? _e('Paired') : _e('Not Paired') ?></span></td>
@@ -31,7 +93,35 @@ toopherUserOptions.init(
     <?php echo($pairedWithToopher ? "'paired'" : "'unpaired'") ?>
 );
     </script>
-<div>
+<?php
+}
+
+function toopher_edit_user_options_menu($user){
+    $uid = (int)$user->ID;
+    $pairedWithToopher = get_user_meta($uid, 't2s_user_paired', true);
+    global $toopherUserOptions;
+    global $toopherUserOptionVals;
+    $headerText = IS_PROFILE_PAGE ? 'my account' : 'this user';
+    refresh_toopher_user_options($uid);
+
+?>
+    <table class="form-table">
+        <tbody>
+        <tr>
+        <th>Require Toopher Authentication for <?php echo $headerText ?> when:</th>
+            <td>
+<?php   foreach($toopherUserOptions as $key => $val){
+            echo "<label for='" . $key . "'>";
+            $checkedText = $toopherUserOptionVals[$key] ? "checked='checked'" : "";
+            echo "<input type='checkbox' name='" . $key . "' id='" . $key . "' " . $checkedText . " />";
+            echo "  " . $val[0] . "</label>";
+            echo "<br />";
+        }
+?>
+            </td>
+        </tr>
+        </tbody>
+    </table>
 <?php
 }
 

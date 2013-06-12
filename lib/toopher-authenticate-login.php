@@ -10,7 +10,7 @@ add_filter('authenticate', 'toopher_finish_authenticate_login', 0, 1);
 
 function toopher_begin_authenticate_login($user){
     if (is_a($user, 'WP_User')){
-        if (get_user_meta((int)$user->ID, 't2s_user_paired', true)){
+        if ((get_user_meta((int)$user->ID, 't2s_user_paired', true)) && (get_user_meta((int)$user->ID, 't2s_authenticate_login', true))){
             if(isset($_POST['toopher_authentication_successful']) && ($_POST['toopher_authentication_successful'] === 'true')){
                 return $user;
             } else {
