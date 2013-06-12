@@ -80,7 +80,9 @@ function toopher_login_pending($user){
         <?php wp_head(); ?>
     </head>
     <body>
-        <iframe id='toopher_iframe' toopher_postback='<?php echo wp_login_url() ?>' framework_post_args='<?php echo json_encode($toopher_finish_authenticate_parameters) ?>' toopher_req='<?php echo $signed_url ?>'></iframe>
+        <div style="width:100%; text-align:center; padding:50px;">
+        <iframe id='toopher_iframe' style="display: inline-block;"  toopher_postback='<?php echo wp_login_url() ?>' framework_post_args='<?php echo json_encode($toopher_finish_authenticate_parameters) ?>' toopher_req='<?php echo $signed_url ?>'></iframe>
+        </div>
         <script>
 <?php  include('toopher-web/toopher-web.js'); ?>
         </script>
