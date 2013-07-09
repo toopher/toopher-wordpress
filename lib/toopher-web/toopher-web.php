@@ -23,7 +23,7 @@ class ToopherWeb
     {
         $params = array(
             'username' => $username,
-            'action' => $action,
+            'action_name' => $action,
             'automation_allowed' => $automation_allowed ? 'True' : 'False'
         );
         return ToopherWeb::getOAuthUrl($baseUrl . 'web/auth', $params, $ttl, $key, $secret, $session_token);

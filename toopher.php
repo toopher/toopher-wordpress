@@ -31,6 +31,7 @@ add_action('admin_enqueue_scripts', 'enqueue_jquery_cookie');
 
 require('lib/ajax-endpoints.php');
 require('lib/toopher-authenticate-login.php');
+require('lib/toopher-authenticate-profile-update.php');
 require('lib/toopher-user-options.php');
 require('lib/toopher-settings.php');
 

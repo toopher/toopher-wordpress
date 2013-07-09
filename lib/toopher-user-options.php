@@ -1,51 +1,68 @@
 <?php
 
-add_action('personal_options_update', 'toopher_user_update_options');
-add_action('edit_user_profile_update', 'toopher_user_update_options');
 add_action('show_user_profile', 'toopher_user_options_menu_container');
 add_action('edit_user_profile', 'toopher_edit_user_options_menu_container');
+add_filter('user_profile_update_errors', 'toopher_record_updated_settings_for_later_application', 20, 3);
 
 $toopherUserOptions = array(
-    "t2s_authenticate_login" => array("Logging In", true)
+    "t2s_authenticate_login" => array("Logging In", '1'),
+    "t2s_authenticate_profile_update" => array("Updating my User Profile", '1')
 );
 $toopherUserOptionVals = array();
+
 $refreshToopherUserOptionsCalled = false;
 function refresh_toopher_user_options($uid){
     global $toopherUserOptions;
     global $toopherUserOptionVals;
     global $refreshToopherUserOptionsCalled;
-    if($refreshToopherUserOptionsCalled){
-        return;
-    }
-    $refreshToopherUserOptionsCalled = true;
-    foreach($toopherUserOptions as $key => $val){
-        $userMeta = get_user_meta($uid, $key, true);
-        if ($userMeta === ""){
-            $userMeta = $toopherUserOptions[$key][1];
-        }
+    if(!$refreshToopherUserOptionsCalled){
+        $refreshToopherUserOptionsCalled = true;
+        foreach($toopherUserOptions as $key => $val){
+            $userMeta = get_user_meta($uid, $key, true);
+            if ($userMeta === ""){
+                $userMeta = $toopherUserOptions[$key][1];
+            }
 
-        $toopherUserOptionVals[$key] = $userMeta;
+            $toopherUserOptionVals[$key] = $userMeta;
+        }
     }
 }
 
-
-function toopher_user_update_options($uid){
+function toopher_record_updated_settings_for_later_application($errors, $update, $user){
+    if(isset($_POST['toopher_sig'])){
+        // ignoring toopher authentication postback
+        return;
+    }
     global $toopherUserOptions;
     global $toopherUserOptionVals;
-    refresh_toopher_user_options($uid);
+    $updatedToopherUserOptionVals = array();
+    refresh_toopher_user_options($user->ID);
     foreach ($toopherUserOptions as $key => $val){
-        $newVal = 0;
+        $newVal = '0';
         if(isset($_REQUEST[$key])){
-            $newVal = true;
+            $newVal = '1';
         }
         if($toopherUserOptionVals[$key] !== $newVal){
-            update_user_meta($uid, $key, $newVal);
-            $toopherUserOptionVals[$key] = $newVal;
+            $updatedToopherUserOptionVals[$key] = $newVal;
+        }
+    }
+    set_transient($user->ID . '_pending_toopher_profile_settings', $updatedToopherUserOptionVals, 2 * MINUTE_IN_SECONDS);
+}
+
+function toopher_apply_updated_user_settings($user){
+    $updatedToopherUserOptionVals = get_transient($user->ID . '_pending_toopher_profile_settings');
+    delete_transient($user->ID . '_pending_toopher_profile_settings');
+    if ($updatedToopherUserOptionVals){
+        foreach ($updatedToopherUserOptionVals as $key => $val){
+            update_user_meta((int)$user->ID, $key, $val);
+            $toopherUserOptionVals[$key] = $val;
         }
     }
 }
 
 function toopher_user_options_menu_container($user){
+
+    refresh_toopher_user_options($user->ID);
 ?>
 <div class="wrap">
     <h3>Toopher Device Pairing</h3>
