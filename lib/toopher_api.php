@@ -63,11 +63,12 @@ class ToopherAPI
         return $this->makePairResponse($this->get('pairings/' . $pairingId));
     }
 
-    public function authenticate($pairingId, $terminalName, $actionName = '')
+    public function authenticate($pairingId, $terminalName, $actionName = '', $automationAllowed=true)
     {
         $params = array(
             'pairing_id' => $pairingId,
-            'terminal_name' => $terminalName
+            'terminal_name' => $terminalName,
+            'automation_allowed' => $automationAllowed
         );
         if(!empty($actionName))
         {
