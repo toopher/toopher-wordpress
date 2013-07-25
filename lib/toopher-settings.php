@@ -6,8 +6,8 @@ function toopher_plugin_admin_menu() {
     add_options_page('Toopher Plugin Options', 'Toopher Authentication', 'manage_options', TOOPHER_PLUGIN_ID, 'toopher_plugin_admin_options');
 }
 function toopher_plugin_admin_options(){
-    add_site_option('toopher_api_key');
-    add_site_option('toopher_api_secret');
+    add_site_option('toopher_api_key', 'YOUR TOOPHER API KEY');
+    add_site_option('toopher_api_secret', 'YOUR TOOPHER API SECRET');
     add_site_option('toopher_api_url', 'https://api.toopher.com/v1/');
 
     if(isset($_POST['update_settings'])){

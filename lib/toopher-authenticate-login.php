@@ -9,16 +9,38 @@ add_filter('authenticate', 'toopher_finish_authenticate_login', 0, 1);
  **/
 
 function toopher_begin_authenticate_login($user){
+    error_log('toopher_begin_authenticate_login');
     if (is_a($user, 'WP_User')){
         if ((get_user_meta((int)$user->ID, 't2s_user_paired', true)) && (get_user_meta((int)$user->ID, 't2s_authenticate_login', true))){
             if(isset($_POST['toopher_authentication_successful']) && ($_POST['toopher_authentication_successful'] === 'true')){
                 return $user;
             } else {
                 error_log('user should be toopher-authenticated');
-                toopher_login_pending($user);
-                exit();
+                if(defined('XMLRPC_REQUEST') && XMLRPC_REQUEST){
+                    error_log('toopher-authenticating XML-RPC login');
+                    error_log('cookies: ' . var_export($_COOKIE, true));
+                    setcookie('wp-xmlrpc-t2s-terminal-id', 'test');
+                    require_once('toopher_api.php');
+                    $api = new ToopherAPI(get_option('toopher_api_key'), get_option('toopher_api_secret'), get_option('toopher_api_url'));
+                    $authStatus = $api->authenticate(get_user_meta((int)$user->ID, 't2s_pairing_id', true), "my blog");
+                    while($authStatus['pending']){
+                        $authStatus = $api->getAuthenticationStatus($authStatus['id']);
+                    }
+                    if(!$authStatus['granted']){
+                        $user = new WP_Error('Toopher Authentication Failure', __('Unable to authenticate user through Toopher API'));
+                    }
+                } else {
+                    error_log('beginning toopher interactive login');
+                    toopher_login_pending($user);
+                    exit();
+                }
             }
+        } else {
+            error_log('user does not have toopher protection enabled');
+            error_log('t2s_user_paired is ' + (string)get_user_meta((int)$user->ID, 't2s_user_paired'));
         }
+    } else {
+        error_log('not a WP_User');
     }
 
     return $user;
