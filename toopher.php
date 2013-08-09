@@ -5,16 +5,6 @@ Plugin Name: Toopher Two-Factor Authentication
 
 define ('TOOPHER_PLUGIN_ID', 'ToopherForWordpress');
 
-function print_filters_for( $hook = '' ) {
-    global $wp_filter;
-    if( empty( $hook ) || !isset( $wp_filter[$hook] ) )
-        return;
-
-    print '<pre>';
-    print_r( $wp_filter[$hook] );
-    print '</pre>';
-}
-
 function strip_wp_magic_quotes($s){
     if (get_magic_quotes_gpc() || function_exists('wp_magic_quotes')){
         return stripslashes($s);
@@ -24,7 +14,7 @@ function strip_wp_magic_quotes($s){
 }
 
 function enqueue_jquery_cookie(){
-    wp_enqueue_script('jquery-cookie', '//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js');
+    wp_enqueue_script('jquery-cookie', plugins_url('js/jquery.cookie.min.js', __FILE__));
 }
 
 add_action('admin_enqueue_scripts', 'enqueue_jquery_cookie');
