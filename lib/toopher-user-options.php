@@ -87,29 +87,138 @@ function toopher_edit_user_options_menu_container($user){
 function toopher_user_options_menu($user){
 
     $pairedWithToopher = get_user_meta((int)$user->ID, 't2s_user_paired', true);
+    $pairingRowStyle = $pairedWithToopher ? 'display: none; ' : '';
+    $unpairingRowStyle = $pairedWithToopher ? '' : 'display: none; ';
 ?>
-<div class="wrap">
-    <table class="form-table">
-        <tr>
-            <th><label for='toopher_pairing_status'><?php _e('Toopher Pairing Status') ?></label></th>
-            <td><span id='toopher_pairing_status'><?php $pairedWithToopher ? _e('Paired') : _e('Not Paired') ?></span></td>
-        </tr>
-        <tr>
-            <td></td>
-            <td><div id='toopher_wordpress_user_options'></div></td>
-        </tr>
-    </table>
-    <script>
+<div class="wrap" style="width: 60%; ">
+<style>
+.toopher-button {
+  background: #f3f3f3;
+  background-image: -webkit-gradient(linear,left top,left bottom,from(#fefefe),to(#f4f4f4));
+  background-image: -webkit-linear-gradient(top,#fefefe,#f4f4f4);
+  background-image: -moz-linear-gradient(top,#fefefe,#f4f4f4);
+  background-image: -o-linear-gradient(top,#fefefe,#f4f4f4);
+  background-image: linear-gradient(to bottom,#fefefe,#f4f4f4);
+  border: 1px #bbb solid;
+  color: #333;
+  text-shadow: 0 1px 0 #fff;
+  display: inline-block;
+  text-decoration: none;
+  font-size: 12px;
+  line-height: 23px;
+  height: 24px;
+  margin: 0;
+  padding: 0 20px 1px;
+  cursor: pointer;
+  -webkit-border-radius: 3px;
+  -webkit-appearance: none;
+  border-radius: 3px;
+  white-space: nowrap;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.toopher-button-destructive {
+  background-color: #b54c16;
+  background-image: -webkit-gradient(linear,left top,left bottom,from(#d8510f),to(#b54c16));
+  background-image: -webkit-linear-gradient(top,#d8510f,#b54c16);
+  background-image: -moz-linear-gradient(top,#d8510f,#b54c16);
+  background-image: -ms-linear-gradient(top,#d8510f,#b54c16);
+  background-image: -o-linear-gradient(top,#d8510f,#b54c16);
+  background-image: linear-gradient(to bottom,#d8510f,#b54c16);
+  border-color: #935029;
+  border-bottom-color: #1e6a8d:
+  -webkit-box-shadow: inset 0 1px 0 rgba(228,134,87,0.9);
+  box-shadow: inset 0 1px 0 rgba(228,134,87,0.9);
+  color: #fff;
+  text-decoration: none;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.1);
+}
+
+.toopher-button-destructive:hover {
+  background-color: #b54c16;
+  background-image: -webkit-gradient(linear,left top,left bottom,from(#ea621e),to(#b54c16));
+  background-image: -webkit-linear-gradient(top,#ea621e,#b54c16);
+  background-image: -moz-linear-gradient(top,#ea621e,#b54c16);
+  background-image: -ms-linear-gradient(top,#ea621e,#b54c16);
+  background-image: -o-linear-gradient(top,#ea621e,#b54c16);
+  background-image: linear-gradient(to bottom,#ea621e,#b54c16);
+  border-color: #935029;
+  -webkit-box-shadow: inset 0 1px 0 rgb(228,134,87);
+  box-shadow: inset 0 1px 0 rgb(228,134,87);
+  color: #fff;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.3);
+}
+</style>
+  <div>
+    <div class="description" style="width: 250px;" >Get the Toopher app on your smartphone to pair with your account</div>
+  </div>
+  <div style="margin-top: 12px; ">
+    <a href="https://itunes.apple.com/us/app/toopher/id562592093?mt=8&uo=4" target="itunes_store">
+      <img src="http://r.mzstatic.com/images/web/linkmaker/badge_appstore-lrg.gif" 
+          alt="Toopher - Toopher" 
+          style="border: 0; height: 40px;"/>
+    </a>
+    <a href="http://play.google.com/store/apps/details?id=com.toopher.android" style="margin-left:20px;">
+      <img alt="Android app on Google Play"
+          src="http://developer.android.com/images/brand/en_app_rgb_wo_45.png"
+          style="height: 40px;" />
+    </a>
+  </div>
+  <div style="margin-top:20px; color:#EEE; width: 300px;">
+    <hr />
+  </div>
+  <div id="toopher_pairing" style="height: 220px; margin-top:12px; " >
+    <div >
+
+      <div class="toopher-show-when-unpaired" style="float: left; ">
+        <img src='<?php echo(TOOPHER_PLUGIN_URL . '/media/iPhone-5-black.png'); ?>' />
+      </div>
+      <div class="toopher-show-when-unpaired" style="float: left; margin-top:90px; margin-left: 15px;">
+        <img src='<?php echo(TOOPHER_PLUGIN_URL . '/media/Arrow.png'); ?>' />
+      </div>
+
+      <div style="height: 100%; width: 400px; float: left; margin-left: 15px;" >
+        <div class="toopher-show-when-paired" style="display:none;" >
+          <div style="margin-top: 10px;">
+            <div>
+              <span class="description">You have already paired Toopher with this account.  Click the button below to unpair your device.</span>
+            </div>
+            <div style="margin-top: 15px; margin-left: 80px;">
+              <input type="button" class="toopher-pairing-toggle toopher-button toopher-button-destructive" value="Remove Pairing" />
+            </div>
+          </div>
+        </div>
+
+        <div class="toopher-show-when-unpaired" style="margin-top: 50px; display: none;">
+          <div class="toopher-hide-when-iframe-loaded">
+            <span class="description">You have not paired your account with Toopher yet.</span>
+          </div>
+          <div  class="toopher-hide-when-iframe-loaded" style="margin-top: 15px; margin-left: 80px;">
+            <input type="button" class="toopher-pairing-toggle button button-primary" value="Pair Now!" />
+          </div>
+        </div>
+
+        <div class="toopher-show-while-iframe-loading" style="display: none; ">
+          <img src='<?php echo(TOOPHER_PLUGIN_URL . '/media/preloader-bold.gif'); ?>' />
+        </div>
+        
+        <div id="toopher_iframe_container" class="toopher-show-when-iframe-loaded" style="height:100%; width:100%; display:none; " />
+      </div>
+    </div>
+  </div>
+</div>
+<script>
 var toopherWebApi = <?php include('toopher-web/toopher-web.js'); ?>;
 var toopherUserOptions = <?php include('toopher-user-options.js'); ?>;
 
 toopherUserOptions.init(
     toopherWebApi,
-    'toopher_wordpress_user_options', 
-    'toopher_pairing_status', 
+    'toopher_pairing', 
+    'toopher-pairing-toggle', 
     <?php echo($pairedWithToopher ? "'paired'" : "'unpaired'") ?>
 );
-    </script>
+</script>
 <?php
 }
 

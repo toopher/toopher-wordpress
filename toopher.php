@@ -4,6 +4,7 @@ Plugin Name: Toopher Two-Factor Authentication
  */
 
 define ('TOOPHER_PLUGIN_ID', 'ToopherForWordpress');
+define ('TOOPHER_PLUGIN_URL', plugins_url('', __FILE__));
 
 function strip_wp_magic_quotes($s){
     if (get_magic_quotes_gpc() || function_exists('wp_magic_quotes')){
