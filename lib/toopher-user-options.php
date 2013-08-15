@@ -190,8 +190,8 @@ function toopher_user_options_menu($user){
           </div>
         </div>
 
-        <div class="toopher-show-when-unpaired" style="margin-top: 50px; display: none;">
-          <div class="toopher-hide-when-iframe-loaded">
+        <div class="toopher-show-when-unpaired" style="display: none;">
+          <div class="toopher-hide-when-iframe-loaded" style="margin-top:50px;" >
             <span class="description">You have not paired your account with Toopher yet.</span>
           </div>
           <div  class="toopher-hide-when-iframe-loaded" style="margin-top: 15px; margin-left: 80px;">
@@ -199,8 +199,12 @@ function toopher_user_options_menu($user){
           </div>
         </div>
 
-        <div class="toopher-show-while-iframe-loading" style="display: none; ">
+        <div class="toopher-show-while-iframe-loading" style="display: none; margin-top: 15px; margin-left: 80px; ">
           <img src='<?php echo(TOOPHER_PLUGIN_URL . '/media/preloader-bold.gif'); ?>' />
+        </div>
+
+        <div class="toopher-show-on-failure" style="display: none; ">
+          <span class="error">There was an error contacting the Toopher API</span>
         </div>
         
         <div id="toopher_iframe_container" class="toopher-show-when-iframe-loaded" style="height:100%; width:100%; display:none; " />
