@@ -90,7 +90,7 @@ function toopher_user_options_menu($user){
     $pairingRowStyle = $pairedWithToopher ? 'display: none; ' : '';
     $unpairingRowStyle = $pairedWithToopher ? '' : 'display: none; ';
 ?>
-<div class="wrap" style="width: 60%; ">
+<div class="wrap" style="width: 600px; ">
 <style>
 .toopher-button {
   background: #f3f3f3;
