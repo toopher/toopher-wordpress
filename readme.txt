@@ -29,6 +29,7 @@ Just install the plugin, register for API credentials at the
 Two-Factor authentication for up to ten users.
 
 == Installation ==
+
 1. Register for your free "Requester Credentials" at the [Toopher Developer Portal](https://dev.toopher.com)
 1. From the WordPress dashboard, install and activate the Toopher Plugin
 1. In the "Toopher Authentication" settings menu [Settings -> Toopher Authentication],
@@ -42,7 +43,10 @@ on their user profile page.
 
 == Screenshots ==
 
+1. The Toopher Pairing screen, located in the User Profile admin view
+
 == Changelog ==
 
 = 1.0 =
+
 * Initial release
