@@ -19,6 +19,7 @@
       $uid = $user->ID;
       foreach ($user_options as $user_option ){
           delete_user_option($uid, $user_option);
+          delete_user_option($uid, $user_option, true);
       }
   }
 ?>
