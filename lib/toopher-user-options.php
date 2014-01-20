@@ -31,6 +31,11 @@ function refresh_toopher_user_options($uid){
 }
 
 function toopher_record_updated_settings_for_later_application($errors, $update, $user){
+
+    // only want to run if we're updating an existing user, not adding a new one
+    if (!$update){
+        return;
+    }
     if(isset($_POST['toopher_sig'])){
         // ignoring toopher authentication postback
         return;

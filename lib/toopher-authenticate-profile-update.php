@@ -8,6 +8,9 @@ function toopher_begin_authorize_profile_update($errors, $update, $user){
     if ($errors->get_error_codes()){
         return;
     }
+    if (!$update) {
+        return;
+    }
     if ((get_user_option('t2s_user_paired', (int)$user->ID)) && (get_user_option('t2s_authenticate_profile_update', (int)$user->ID))){
         if(isset($_POST['toopher_authentication_successful']) && ($_POST['toopher_authentication_successful'] === 'true')){
             return;
