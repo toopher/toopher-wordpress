@@ -1,7 +1,7 @@
 <?php
 
-add_action('show_user_profile', 'toopher_user_options_menu_container');
-add_action('edit_user_profile', 'toopher_edit_user_options_menu_container');
+add_action('show_user_profile', 'toopher_user_profile_page');
+add_action('edit_user_profile', 'toopher_user_profile_page');
 add_filter('user_profile_update_errors', 'toopher_record_updated_settings_for_later_application', 20, 3);
 
 $toopherUserOptions = array(
@@ -67,20 +67,24 @@ function toopher_apply_updated_user_settings($user){
     }
 }
 
-function toopher_user_options_menu_container($user){
-
-    refresh_toopher_user_options($user->ID);
+function toopher_user_profile_page($user) {
 ?>
 <div class="wrap">
-    <h3>Toopher Device Pairing</h3>
+    <h3>Toopher Two-Factor Authentication</h3>
+    <table class="form-table">
+        <tbody>
 <?php
-    toopher_user_options_menu($user);
-    echo "<h3>Toopher User Authentication Options</h3>";
-    toopher_edit_user_options_menu($user);
+  if (IS_PROFILE_PAGE) {
+    toopher_pairing_iframe_row($user);
+  }
+  toopher_user_options_row($user);
 ?>
+        </tbody>
+    </table>
 </div>
 <?php
 }
+
 function toopher_edit_user_options_menu_container($user){
 ?>
 <div class="wrap">
@@ -91,7 +95,7 @@ function toopher_edit_user_options_menu_container($user){
 </div>
 <?php
 }
-function toopher_user_options_menu($user){
+function toopher_pairing_iframe_row($user){
     $key = get_option('toopher_api_key');
     $secret = get_option('toopher_api_secret');
     $baseUrl = get_option('toopher_api_url');
@@ -99,23 +103,25 @@ function toopher_user_options_menu($user){
 
 
 ?>
-<div class="wrap" style="width: 100%; height:500px;">
-  <iframe id="toopher-iframe" style="height:100%; width:100%; border: 1px dashed red; padding: 10px;" src='<?php echo($toopherPairingIframeSrc); ?>' />
-</div>
+<tr>
+    <th>Toopher Device Pairing</th>
+    <td>
+        <div class="wrap" style="width: 100%; height:300px;">
+            <iframe id="toopher-iframe" style="height:100%; width:100%;" src='<?php echo($toopherPairingIframeSrc); ?>' ></iframe>
+        </div>
+    </td>
+</tr>
 <?php
 }
 
-function toopher_edit_user_options_menu($user){
+function toopher_user_options_row($user){
     $uid = (int)$user->ID;
-    $pairedWithToopher = get_user_option('t2s_user_paired', $uid);
     global $toopherUserOptions;
     global $toopherUserOptionVals;
     $headerText = IS_PROFILE_PAGE ? 'my account' : 'this user';
     refresh_toopher_user_options($uid);
 
 ?>
-    <table class="form-table">
-        <tbody>
         <tr>
         <th>Require Toopher Authentication for <?php echo $headerText ?> when:</th>
             <td>
@@ -129,8 +135,6 @@ function toopher_edit_user_options_menu($user){
 ?>
             </td>
         </tr>
-        </tbody>
-    </table>
 <?php
 }
 

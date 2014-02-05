@@ -11,7 +11,7 @@ function toopher_begin_authorize_profile_update($errors, $update, $user){
     if (!$update) {
         return;
     }
-    if ((get_user_option('t2s_user_paired', (int)$user->ID)) && (get_user_option('t2s_authenticate_profile_update', (int)$user->ID))){
+    if (get_user_option('t2s_authenticate_profile_update', (int)$user->ID)){
         if(isset($_POST['toopher_authentication_successful']) && ($_POST['toopher_authentication_successful'] === 'true')){
             return;
         } else {
@@ -35,7 +35,9 @@ function toopher_finish_authorize_profile_update($errors, $update, $user){
         unset($_POST['pending_user_id']);
         $secret = get_option ('toopher_api_secret');
         foreach(array('terminal_name', 'reason') as $toopher_key){
-            $_POST[$toopher_key] = strip_wp_magic_quotes($_POST[$toopher_key]);
+            if (array_key_exists($toopher_key, $_POST)) {
+                $_POST[$toopher_key] = strip_wp_magic_quotes($_POST[$toopher_key]);
+            }
         }
 
         $pending_session_token = get_transient($pending_user_id . '_t2s_authentication_session_token');
@@ -47,15 +49,37 @@ function toopher_finish_authorize_profile_update($errors, $update, $user){
         unset($toopherSigData['action']);
 
         if(($pending_session_token === $_POST['session_token']) && ToopherWeb::validate($secret, $toopherSigData, 100)){
-            $authGranted = ($_POST['pending'] === 'false') && ($_POST['granted'] === 'true');
-            $errors->errors = array();
+            error_log('toopher signature validates');
+            $authGranted = false;
+            if (array_key_exists('error_code', $_POST)){
+                $error_code = $_POST['error_code'];
+                $error_message = $_POST['error_message'];
+                error_log('Received error response ' . $error_code . ' from Toopher API: ' . $error_message);
+
+                # three specific errors will be allowed to fail open, corresponding to allowing users
+                # to opt-in to Toopher (instead of requiring all users to participate)
+                if ($error_code === '707') { # pairing deactivated - allow in
+                    $authGranted = true;
+                } elseif ($error_code === '704') { # user opt-out - allow in
+                    $authGranted = true;
+                } elseif ($error_code === '705') { # unknown user - allow in
+                    $authGranted = true;
+                }
+            } else {
+                $authGranted = ($_POST['pending'] === 'false') && ($_POST['granted'] === 'true');
+            }
+
             if($authGranted){
+                error_log('profile update auth granted');
                 $user = $pending_updated_user;
                 toopher_apply_updated_user_settings($user);
+                $_POST['toopher_authentication_successful'] = 'true';
             } else {
+                #$errors->errors = array();
                 $errors->add('toopher_auth_fail', __('<strong>Error</strong>: Toopher Two-Factor security prevented the attempt to update user settings.'));
+                $_POST['toopher_authentication_successful'] = 'false';
             }
-            $_POST['toopher_authentication_successful'] = $authGranted ? 'true' : 'false';
+
         } else {
             $errors->add('toopher_auth_invalid', __('<strong>Error</strong>: Toopher API Signature did not match expected value!'));
             $_POST['toopher_authentication_successful'] = 'false';
@@ -72,7 +96,7 @@ function toopher_profile_update_pending($user){
     $session_token = wp_generate_password(12, false);
     set_transient($user->ID . '_t2s_authentication_session_token', $session_token, 2 * MINUTE_IN_SECONDS);
     set_transient($user->ID . '_t2s_pending_profile_update_data', $user, 2 * MINUTE_IN_SECONDS);
-    $signed_url = ToopherWeb::auth_iframe_url($user->user_login, 'Update your profile settings', 100, $automationAllowed, $baseUrl, $key, $secret, $session_token);
+    $signed_url = ToopherWeb::auth_iframe_url($user->user_login, 'Wordpress User Profile changes', 100, $automationAllowed, $baseUrl, $key, $secret, $session_token);
 
     $toopher_finish_authenticate_parameters = array(
         'pending_user_id' => $user->ID,
@@ -93,6 +117,9 @@ function toopher_profile_update_pending($user){
         <script>
 <?php  include('jquery.cookie.min.js'); ?>
 <?php  include('toopher-web/toopher-web.js'); ?>
+
+    toopher.init('#toopher_iframe');
+    
         </script>
 <?php get_footer(); wp_footer(); ?>
     </body>
