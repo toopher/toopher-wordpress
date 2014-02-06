@@ -140,7 +140,7 @@ function toopher_profile_update_pending($user, $cur_user){
         <?php wp_head(); ?>
     </head>
     <body>
-        <div style="width:100%; height:300; text-align:center; padding:50px;">
+        <div style="width:80%; height:300; text-align:center; margin-left:auto; margin-right:auto;">
         <iframe id='toopher_iframe' style="display: inline-block; height: 100%; width: 100%;"  toopher_postback='<?php echo $postbackUrl ?>' framework_post_args='<?php echo json_encode($toopher_finish_authenticate_parameters) ?>' toopher_req='<?php echo $signed_url ?>'></iframe>
         </div>
         <script>

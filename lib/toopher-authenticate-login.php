@@ -112,8 +112,8 @@ function toopher_login_pending($user){
         <?php wp_head(); ?>
     </head>
     <body>
-        <div style="width:100%; text-align:center; padding:50px;">
-        <iframe id='toopher_iframe' style="display: inline-block; height:100%; width:100%; border: 1 px dashed red; padding: 10px;"  toopher_postback='<?php echo wp_login_url() ?>' framework_post_args='<?php echo json_encode($toopher_finish_authenticate_parameters) ?>' toopher_req='<?php echo $signed_url ?>'></iframe>
+        <div style="width:80%; text-align:center; margin-left: auto; margin-right: auto;">
+        <iframe id='toopher_iframe' style="display: inline-block; height:300; width:100%; border: 1 px dashed red; padding: 10px;"  toopher_postback='<?php echo wp_login_url() ?>' framework_post_args='<?php echo json_encode($toopher_finish_authenticate_parameters) ?>' toopher_req='<?php echo $signed_url ?>'></iframe>
         </div>
         <script>
 <?php  include('jquery.cookie.min.js') ?>
