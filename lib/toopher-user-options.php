@@ -31,10 +31,8 @@ function refresh_toopher_user_options($uid){
 }
 
 function toopher_record_updated_settings_for_later_application($errors, $update, $user){
-    error_log('toopher_record_updated_settings_for_later_application (user = ' . $user->user_login . ')');
     // only want to run if we're updating an existing user, not adding a new one
     if (!$update){
-        error_log('  not an update');
         return;
     }
     if(isset($_POST['toopher_sig'])){
@@ -44,16 +42,13 @@ function toopher_record_updated_settings_for_later_application($errors, $update,
 
     $savedPOST = $_POST;
     set_transient($user->ID . '_pending_user_profile_POST', $savedPOST, 2 * MINUTE_IN_SECONDS);
-    error_log('  saving user vals: ' . var_export($savedPOST, true));
 }
 
 function toopher_apply_updated_user_settings($user){
     global $toopherUserOptions;
-    error_log('toopher_apply_updated_user_settings');
     $savedPOST = get_transient($user->ID . '_pending_user_profile_POST');
     delete_transient($user->ID . '_pending_user_profile_POST');
     if ($savedPOST) {
-        error_log('Updating user vals: ' . var_export($savedPOST, true));
         $realPOST = $_POST;
         $_POST = $savedPOST;
         edit_user($user->ID);

@@ -26,18 +26,14 @@ function toopher_begin_authorize_profile_update($errors, $update, $user){
     if (!toopherProfileGuardEnter()) {
         return;
     }
-    error_log('toopher_begin_authorize_profile_update');
-    error_log('  user ID is ' . $user->ID);
     $cur_user = wp_get_current_user();
-    error_log('  current_user ID is ' . $cur_user->ID);
     if ($errors->get_error_codes()){
-        error_log('begin - errors->get_error_codes');
+        // no-op
     } elseif (!$update) {
-        error_log('begin - not an update');
+        // no-op
     } elseif(isset($_POST['toopher_authentication_successful']) && ($_POST['toopher_authentication_successful'] === 'true')){
-        error_log('begin - toopher_authentication_successful');
+        // no-op
     } elseif (get_user_option('t2s_authenticate_profile_update', (int)$cur_user->ID)){
-        error_log('serving Toopher iframe');
         toopher_profile_update_pending($user, $cur_user);
         exit();
     } else {
@@ -51,14 +47,12 @@ function toopher_finish_authorize_profile_update($errors, $update, $user){
     if (!toopherProfileGuardEnter()) {
         return;
     }
-    error_log('toopher_finish_authorize_profile_update');
     // make sure someone isn't trying to circumvent toopher-auth by submitting the authentication success flag through the browser
     if(isset($_POST['toopher_authentication_successful'])){
         unset($_POST['toopher_authentication_successful']);
     }
 
     if(isset($_POST['toopher_sig'])){
-        error_log('toopher_sig is present');
         $pending_user_id = $_POST['pending_user_id'];
         unset($_POST['pending_user_id']);
         $secret = get_option ('toopher_api_secret');
@@ -77,12 +71,10 @@ function toopher_finish_authorize_profile_update($errors, $update, $user){
         unset($toopherSigData['action']);
 
         if(($pending_session_token === $_POST['session_token']) && ToopherWeb::validate($secret, $toopherSigData, 100)){
-            error_log('toopher signature validates');
             $authGranted = false;
             if (array_key_exists('error_code', $_POST)){
                 $error_code = $_POST['error_code'];
                 $error_message = $_POST['error_message'];
-                error_log('Received error response ' . $error_code . ' from Toopher API: ' . $error_message);
 
                 # three specific errors will be allowed to fail open, corresponding to allowing users
                 # to opt-in to Toopher (instead of requiring all users to participate)
@@ -99,7 +91,6 @@ function toopher_finish_authorize_profile_update($errors, $update, $user){
 
             $errors->errors = array();
             if($authGranted){
-                error_log('profile update auth granted');
                 $user = $pending_updated_user;
                 toopher_apply_updated_user_settings($user);
                 $_POST['toopher_authentication_successful'] = 'true';
