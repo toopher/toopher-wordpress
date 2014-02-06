@@ -48,6 +48,13 @@ on their user profile page.
 
 == Changelog ==
 
+= 1.4 =
+
+* Update Pairing and Authentication UI elements
+* Fix issue that prevented new users from being added
+* Fix issue updating some user settings
+* Fix issue when admin updates other user's settings
+
 = 1.3 (BETA) =
 
 * Fix issue with XMLRPC authentication routine polling indefinitely in some cases.
