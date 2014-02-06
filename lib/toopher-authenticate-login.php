@@ -14,7 +14,6 @@ function toopher_begin_authenticate_login($user){
           if(isset($_POST['toopher_authentication_successful']) && ($_POST['toopher_authentication_successful'] === 'true')){
               return $user;
           } else {
-              error_log('user should be toopher-authenticated');
               if(defined('XMLRPC_REQUEST') && XMLRPC_REQUEST){
                   setcookie('wp-xmlrpc-t2s-terminal-id', 'test');
                   require_once('toopher_api.php');

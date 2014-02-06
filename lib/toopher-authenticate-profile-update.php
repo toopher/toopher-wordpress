@@ -3,33 +3,62 @@
 add_filter('user_profile_update_errors', 'toopher_begin_authorize_profile_update', 100, 3);
 add_filter('user_profile_update_errors', 'toopher_finish_authorize_profile_update', 0, 3);
 
+$toopherProfileUpdateRecursionGuard = 0;
+
+function toopherProfileGuardEnter() {
+    global $toopherProfileUpdateRecursionGuard;
+    if($toopherProfileUpdateRecursionGuard !== 0){
+        return false;
+    }
+    $toopherProfileUpdateRecursionGuard += 1;
+    return true;
+}
+
+function toopherProfileGuardExit() {
+    global $toopherProfileUpdateRecursionGuard;
+    $toopherProfileUpdateRecursionGuard -= 1;
+    if ($toopherProfileUpdateRecursionGuard !== 0) {
+        error_log('recursive call detected to non-reentrant function: toopher-authenticate-profile');
+    }
+}
 
 function toopher_begin_authorize_profile_update($errors, $update, $user){
+    if (!toopherProfileGuardEnter()) {
+        return;
+    }
+    error_log('toopher_begin_authorize_profile_update');
+    error_log('  user ID is ' . $user->ID);
+    $cur_user = wp_get_current_user();
+    error_log('  current_user ID is ' . $cur_user->ID);
     if ($errors->get_error_codes()){
-        return;
-    }
-    if (!$update) {
-        return;
-    }
-    if(isset($_POST['toopher_authentication_successful']) && ($_POST['toopher_authentication_successful'] === 'true')){
-        return;
-    }
-    if (get_user_option('t2s_authenticate_profile_update', (int)$user->ID)){
-        toopher_profile_update_pending($user);
+        error_log('begin - errors->get_error_codes');
+    } elseif (!$update) {
+        error_log('begin - not an update');
+    } elseif(isset($_POST['toopher_authentication_successful']) && ($_POST['toopher_authentication_successful'] === 'true')){
+        error_log('begin - toopher_authentication_successful');
+    } elseif (get_user_option('t2s_authenticate_profile_update', (int)$cur_user->ID)){
+        error_log('serving Toopher iframe');
+        toopher_profile_update_pending($user, $cur_user);
         exit();
     } else {
         toopher_apply_updated_user_settings($user);
     }
+    toopherProfileGuardExit();
 
 }
 
 function toopher_finish_authorize_profile_update($errors, $update, $user){
+    if (!toopherProfileGuardEnter()) {
+        return;
+    }
+    error_log('toopher_finish_authorize_profile_update');
     // make sure someone isn't trying to circumvent toopher-auth by submitting the authentication success flag through the browser
     if(isset($_POST['toopher_authentication_successful'])){
         unset($_POST['toopher_authentication_successful']);
     }
 
     if(isset($_POST['toopher_sig'])){
+        error_log('toopher_sig is present');
         $pending_user_id = $_POST['pending_user_id'];
         unset($_POST['pending_user_id']);
         $secret = get_option ('toopher_api_secret');
@@ -85,19 +114,28 @@ function toopher_finish_authorize_profile_update($errors, $update, $user){
             $_POST['toopher_authentication_successful'] = 'false';
         }
     }
+    toopherProfileGuardExit();
     return;
 }
 
-function toopher_profile_update_pending($user){
+function toopher_profile_update_pending($user, $cur_user){
     $key = get_option('toopher_api_key');
     $secret = get_option('toopher_api_secret');
     $baseUrl = get_option('toopher_api_url');
-    $automationAllowed = false;
+    $automationAllowed = true;
     $session_token = wp_generate_password(12, false);
     set_transient($user->ID . '_t2s_authentication_session_token', $session_token, 2 * MINUTE_IN_SECONDS);
     set_transient($user->ID . '_t2s_pending_profile_update_data', $user, 2 * MINUTE_IN_SECONDS);
-    $signed_url = ToopherWeb::auth_iframe_url($user->user_login, 'Wordpress User Profile changes', 100, $automationAllowed, $baseUrl, $key, $secret, $session_token);
-
+    $postbackUrl = '';
+    $actionName = '';
+    if (IS_PROFILE_PAGE) {
+        $postbackUrl = get_edit_profile_url($user->ID);
+        $actionName = 'Update your profile';
+    } else {
+        $postbackUrl = get_edit_user_link($user->ID);
+        $actionName = 'Edit profile for ' . $user->user_login;
+    }
+    $signed_url = ToopherWeb::auth_iframe_url($cur_user->user_login, $actionName, 100, $automationAllowed, $baseUrl, $key, $secret, $session_token);
     $toopher_finish_authenticate_parameters = array(
         'pending_user_id' => $user->ID,
         '_wpnonce' => wp_create_nonce('update-user_' . (string)$user->ID),
@@ -111,8 +149,8 @@ function toopher_profile_update_pending($user){
         <?php wp_head(); ?>
     </head>
     <body>
-        <div style="width:100%; text-align:center; padding:50px;">
-        <iframe id='toopher_iframe' style="display: inline-block;"  toopher_postback='<?php echo get_admin_url(get_current_blog_id(), 'profile.php') ?>' framework_post_args='<?php echo json_encode($toopher_finish_authenticate_parameters) ?>' toopher_req='<?php echo $signed_url ?>'></iframe>
+        <div style="width:100%; height:300; text-align:center; padding:50px;">
+        <iframe id='toopher_iframe' style="display: inline-block; height: 100%; width: 100%;"  toopher_postback='<?php echo $postbackUrl ?>' framework_post_args='<?php echo json_encode($toopher_finish_authenticate_parameters) ?>' toopher_req='<?php echo $signed_url ?>'></iframe>
         </div>
         <script>
 <?php  include('jquery.cookie.min.js'); ?>

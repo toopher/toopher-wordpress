@@ -3,7 +3,7 @@ require_once('toopher-web/toopher-web.php');
 
 
 
-function toopherGetPairUrlForCurrentUser() {
+function _toopherGetPairUrlForCurrentUser() {
     $key = get_option('toopher_api_key');
     $secret = get_option('toopher_api_secret');
     $baseUrl = get_option('toopher_api_url');
@@ -20,7 +20,7 @@ function toopherGetPairUrlForCurrentUser() {
     die();  // wordpress sucks.
 }
 
-function toopherUpdatePairing() {
+function _toopherUpdatePairing() {
     error_log('checking signature');
     $secret = get_option('toopher_api_secret');
     unset($_POST['action']);
@@ -37,8 +37,8 @@ function toopherUpdatePairing() {
     die();
 }
 
-add_action('wp_ajax_toopher_get_pair_url_for_current_user', 'toopherGetPairUrlForCurrentUser');
-add_action('wp_ajax_toopher_update_pairing', 'toopherUpdatePairing');
-error_log('added ajax handler');
+#add_action('wp_ajax_toopher_get_pair_url_for_current_user', 'toopherGetPairUrlForCurrentUser');
+#add_action('wp_ajax_toopher_update_pairing', 'toopherUpdatePairing');
+#error_log('added ajax handler');
 //add_action('all', create_function('', 'error_log(current_filter());'));
 ?>
