@@ -11,13 +11,12 @@ function toopher_begin_authorize_profile_update($errors, $update, $user){
     if (!$update) {
         return;
     }
+    if(isset($_POST['toopher_authentication_successful']) && ($_POST['toopher_authentication_successful'] === 'true')){
+        return;
+    }
     if (get_user_option('t2s_authenticate_profile_update', (int)$user->ID)){
-        if(isset($_POST['toopher_authentication_successful']) && ($_POST['toopher_authentication_successful'] === 'true')){
-            return;
-        } else {
-            toopher_profile_update_pending($user);
-            exit();
-        }
+        toopher_profile_update_pending($user);
+        exit();
     } else {
         toopher_apply_updated_user_settings($user);
     }
@@ -69,6 +68,7 @@ function toopher_finish_authorize_profile_update($errors, $update, $user){
                 $authGranted = ($_POST['pending'] === 'false') && ($_POST['granted'] === 'true');
             }
 
+            $errors->errors = array();
             if($authGranted){
                 error_log('profile update auth granted');
                 $user = $pending_updated_user;
