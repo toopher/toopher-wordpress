@@ -6,7 +6,7 @@ add_filter('user_profile_update_errors', 'toopher_record_updated_settings_for_la
 
 $toopherUserOptions = array(
     "t2s_authenticate_login" => array("Logging In", '1'),
-    "t2s_authenticate_profile_update" => array("Updating my User Profile", '1')
+    "t2s_authenticate_profile_update" => array("Updating a User Profile", '1')
 );
 $toopherUserOptionVals = array();
 
