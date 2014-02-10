@@ -95,12 +95,13 @@ function toopher_finish_authorize_profile_update($errors, $update, $user){
                 toopher_apply_updated_user_settings($user);
                 $_POST['toopher_authentication_successful'] = 'true';
             } else {
-                #$errors->errors = array();
+                $errors->errors = array();
                 $errors->add('toopher_auth_fail', __('<strong>Error</strong>: Toopher Two-Factor security prevented the attempt to update user settings.'));
                 $_POST['toopher_authentication_successful'] = 'false';
             }
 
         } else {
+            $errors->errors = array();
             $errors->add('toopher_auth_invalid', __('<strong>Error</strong>: Toopher API Signature did not match expected value!'));
             $_POST['toopher_authentication_successful'] = 'false';
         }
