@@ -14,7 +14,6 @@ function toopher_begin_authenticate_login($user){
               return $user;
           } else {
               if(defined('XMLRPC_REQUEST') && XMLRPC_REQUEST){
-                  setcookie('wp-xmlrpc-t2s-terminal-id', 'test');
                   require_once('toopher_api.php');
                   $api = new ToopherAPI(get_option('toopher_api_key'), get_option('toopher_api_secret'), get_option('toopher_api_url'));
                   $startTime = time();
