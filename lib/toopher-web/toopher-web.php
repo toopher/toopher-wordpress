@@ -9,7 +9,7 @@ class ToopherWeb
             'username' => $username
         );
 
-        return ToopherWeb::getOAuthUrl($baseUrl . 'web/pair-v2', $params, $ttl, $key, $secret);
+        return ToopherWeb::getOAuthUrl($baseUrl . 'web/pair', $params, $ttl, $key, $secret);
     }
     public static function auth_iframe_url($username, $action, $ttl, $automation_allowed, $baseUrl, $key, $secret, $session_token)
     {
@@ -18,7 +18,7 @@ class ToopherWeb
             'action_name' => $action,
             'automation_allowed' => $automation_allowed ? 'True' : 'False'
         );
-        return ToopherWeb::getOAuthUrl($baseUrl . 'web/auth-v2', $params, $ttl, $key, $secret, $session_token);
+        return ToopherWeb::getOAuthUrl($baseUrl . 'web/auth', $params, $ttl, $key, $secret, $session_token);
     }
 
     public static function validate($secret, $data, $ttl=100)
@@ -40,6 +40,7 @@ class ToopherWeb
 
     private static function getOAuthUrl($url, $getParams, $ttl, $key, $secret, $session_token=Null)
     {
+        $getParams['v'] = '2';
         $expiresAt = (time() + $ttl);
         $getParams['ttl'] = (string)$expiresAt;
         if ($session_token){
