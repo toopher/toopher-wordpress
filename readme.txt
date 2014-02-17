@@ -50,6 +50,7 @@ on their user profile page.
 
 = 1.4 =
 
+* Add pairing reset widget
 * Update Pairing and Authentication UI elements
 * Fix issue that prevented new users from being added
 * Fix issue updating some user settings
