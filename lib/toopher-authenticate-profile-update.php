@@ -127,7 +127,7 @@ function toopher_profile_update_pending($user, $cur_user){
         $postbackUrl = get_edit_user_link($user->ID);
         $actionName = 'Edit profile for ' . $user->user_login;
     }
-    $signed_url = ToopherWeb::auth_iframe_url($cur_user->user_login, $actionName, 100, $automationAllowed, $baseUrl, $key, $secret, $session_token);
+    $signed_url = ToopherWeb::auth_iframe_url($cur_user->user_login, $cur_user->user_email, $actionName, 100, $automationAllowed, $baseUrl, $key, $secret, $session_token);
     $toopher_finish_authenticate_parameters = array(
         'pending_user_id' => $user->ID,
         '_wpnonce' => wp_create_nonce('update-user_' . (string)$user->ID),

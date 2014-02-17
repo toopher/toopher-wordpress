@@ -95,7 +95,7 @@ function toopher_pairing_iframe_row($user){
     $key = get_option('toopher_api_key');
     $secret = get_option('toopher_api_secret');
     $baseUrl = get_option('toopher_api_url');
-    $toopherPairingIframeSrc = ToopherWeb::pair_iframe_url($user->data->user_login, 60, $baseUrl, $key, $secret);
+    $toopherPairingIframeSrc = ToopherWeb::pair_iframe_url($user->data->user_login, $user->data->user_email, 60, $baseUrl, $key, $secret);
 
 
 ?>

@@ -98,7 +98,7 @@ function toopher_login_pending($user){
     $automatedLoginAllowed = get_option('toopher_allow_automated_login', 1);
     $session_token = wp_generate_password(12, false);
     set_transient($user->ID . '_t2s_authentication_session_token', $session_token, 20 * MINUTE_IN_SECONDS);
-    $signed_url = ToopherWeb::auth_iframe_url($user->user_login, 'Log In', 100, $automatedLoginAllowed, $baseUrl, $key, $secret, $session_token);
+    $signed_url = ToopherWeb::auth_iframe_url($user->user_login, $user->user_email, 'Log In', 100, $automatedLoginAllowed, $baseUrl, $key, $secret, $session_token);
 
     $toopher_finish_authenticate_parameters = array(
         'pending_user_id' => $user->ID,

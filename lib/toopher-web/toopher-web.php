@@ -3,21 +3,26 @@ require_once('OAuth.php');
 
 class ToopherWeb
 {
-    public static function pair_iframe_url($username, $ttl, $baseUrl, $key, $secret)
+    public static function pair_iframe_url($username, $reset_email, $ttl, $baseUrl, $key, $secret)
     {
         $params = array(
-            'username' => $username
+          'username' => $username,
+          'reset_email' => $reset_email
         );
 
         return ToopherWeb::getOAuthUrl($baseUrl . 'web/pair', $params, $ttl, $key, $secret);
     }
-    public static function auth_iframe_url($username, $action, $ttl, $automation_allowed, $baseUrl, $key, $secret, $session_token)
+    public static function auth_iframe_url($username, $reset_email, $action, $ttl, $automation_allowed, $baseUrl, $key, $secret, $session_token, $extras = array())
     {
         $params = array(
             'username' => $username,
             'action_name' => $action,
-            'automation_allowed' => $automation_allowed ? 'True' : 'False'
+            'automation_allowed' => $automation_allowed ? 'True' : 'False',
+            'reset_email' => $reset_email
         );
+        if ($extras) {
+            $params['requrester_metadata'] = json_encode($extras);
+        }
         return ToopherWeb::getOAuthUrl($baseUrl . 'web/auth', $params, $ttl, $key, $secret, $session_token);
     }
 
@@ -42,7 +47,7 @@ class ToopherWeb
     {
         $getParams['v'] = '2';
         $expiresAt = (time() + $ttl);
-        $getParams['ttl'] = (string)$expiresAt;
+        $getParams['expires'] = (string)$expiresAt;
         if ($session_token){
             $getParams['session_token'] = $session_token;
         }
