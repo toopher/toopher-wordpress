@@ -48,24 +48,29 @@ function toopher_finish_authenticate_login($user){
     }
 
     if(isset($_POST['toopher_sig'])){
-        $pending_user_id = $_POST['pending_user_id'];
-        $redirect_to = $_POST['redirect_to'];
-        unset($_POST['pending_user_id']);
-        unset($_POST['redirect_to']);
-        $secret = get_option('toopher_api_secret');
         foreach(array('terminal_name', 'reason') as $toopher_key){
             if (array_key_exists($toopher_key, $_POST)) {
                 $_POST[$toopher_key] = strip_wp_magic_quotes($_POST[$toopher_key]);
             }
         }
+        $secret = get_option('toopher_api_secret');
+        $validated_data = ToopherWeb::validate($secret, $_POST, 100);
+
+        if (!$validated_data) {
+            return new WP_Error('Toopher Authentication Failure', __('Toopher API Signature did not match expected value'));
+        }
+        
+        $requester_metadata = json_decode(base64_decode($validated_data['requester_metadata']));
+        $pending_user_id = $requester_metadata->pending_user_id;
+        $redirect_to = $requester_metadata->redirect_to;
 
         $pending_session_token = get_transient($pending_user_id . '_t2s_authentication_session_token');
         delete_transient($pending_user_id . '_t2s_authentication_session_token');
-        if(($pending_session_token === $_POST['session_token']) && ToopherWeb::validate($secret, $_POST, 100)){
+        if($pending_session_token === $validated_data['session_token']){
             $auth_granted = false;
-            if (array_key_exists('error_code', $_POST)){
-                $error_code = $_POST['error_code'];
-                $error_message = $_POST['error_message'];
+            if (array_key_exists('error_code', $validated_data)){
+                $error_code = $validated_data['error_code'];
+                $error_message = $validated_data['error_message'];
 
                 # three specific errors will be allowed to fail open, corresponding to allowing users
                 # to opt-in to Toopher (instead of requiring all users to participate)
@@ -77,7 +82,7 @@ function toopher_finish_authenticate_login($user){
                     $auth_granted = true;
                 }
             } else {
-                $auth_granted = ($_POST['pending'] === 'false') && ($_POST['granted'] === 'true');
+                $auth_granted = ($validated_data['pending'] === 'false') && ($validated_data['granted'] === 'true');
             }
             if($auth_granted){
                 $user = get_user_by('id', $pending_user_id);
@@ -85,7 +90,7 @@ function toopher_finish_authenticate_login($user){
             }
             $_POST['toopher_authentication_successful'] = $auth_granted ? 'true' : 'false';
         } else {
-            $user = new WP_Error('Toopher Authentication Failure', __('Toopher API Signature did not match expected value'));
+            $user = new WP_Error('Toopher Authentication Failure', __('Toopher API Session Token Mismatch'));
         }
     }
     return $user;
@@ -98,12 +103,12 @@ function toopher_login_pending($user){
     $automatedLoginAllowed = get_option('toopher_allow_automated_login', 1);
     $session_token = wp_generate_password(12, false);
     set_transient($user->ID . '_t2s_authentication_session_token', $session_token, 20 * MINUTE_IN_SECONDS);
-    $signed_url = ToopherWeb::auth_iframe_url($user->user_login, $user->user_email, 'Log In', 100, $automatedLoginAllowed, $baseUrl, $key, $secret, $session_token);
-
-    $toopher_finish_authenticate_parameters = array(
+    $requester_metadata = array(
         'pending_user_id' => $user->ID,
         'redirect_to' => $_POST['redirect_to']
     );
+    $signed_url = ToopherWeb::auth_iframe_url($user->user_login, $user->user_email, 'Log In', 100, $automatedLoginAllowed, $baseUrl, $key, $secret, $session_token, $requester_metadata);
+
     wp_enqueue_script('jquery');
 ?>
 <html>
@@ -112,7 +117,7 @@ function toopher_login_pending($user){
     </head>
     <body>
         <div style="width:80%; text-align:center; margin-left: auto; margin-right: auto;">
-        <iframe id='toopher_iframe' style="display: inline-block; height:300; width:100%; border: 1 px dashed red; padding: 10px;"  toopher_postback='<?php echo wp_login_url() ?>' framework_post_args='<?php echo json_encode($toopher_finish_authenticate_parameters) ?>' toopher_req='<?php echo $signed_url ?>'></iframe>
+        <iframe id='toopher_iframe' style="display: inline-block; height:300px; width:100%; border: 1 px dashed red; padding: 10px;"  toopher_postback='<?php echo wp_login_url() ?>' toopher_req='<?php echo $signed_url ?>'></iframe>
         </div>
         <script>
 <?php  include('jquery.cookie.min.js') ?>

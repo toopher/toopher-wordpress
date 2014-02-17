@@ -21,7 +21,7 @@ class ToopherWeb
             'reset_email' => $reset_email
         );
         if ($extras) {
-            $params['requrester_metadata'] = json_encode($extras);
+            $params['requester_metadata'] = base64_encode(json_encode($extras));
         }
         return ToopherWeb::getOAuthUrl($baseUrl . 'web/auth', $params, $ttl, $key, $secret, $session_token);
     }
@@ -30,9 +30,14 @@ class ToopherWeb
     {
         $maybe_sig = $data['toopher_sig'];
         unset($data['toopher_sig']);
-        $signature_valid = ToopherWeb::signature($secret, $data) === $maybe_sig;
+        $computed_sig = ToopherWeb::signature($secret, $data);
+        $signature_valid = $computed_sig === $maybe_sig;
         $ttl_valid = (time() - $ttl) < (int)$data['timestamp'];
-        return $signature_valid && $ttl_valid;
+        if ($signature_valid && $ttl_valid) {
+          return $data;
+        } else {
+          return false;
+        }
     }
 
     public static function signature($secret, $data)
