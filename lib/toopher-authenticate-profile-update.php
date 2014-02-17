@@ -114,7 +114,7 @@ function toopher_profile_update_pending($user, $cur_user){
     $key = get_option('toopher_api_key');
     $secret = get_option('toopher_api_secret');
     $baseUrl = get_option('toopher_api_url');
-    $automationAllowed = true;
+    $automationAllowed = false;
     $session_token = wp_generate_password(12, false);
     set_transient($user->ID . '_t2s_authentication_session_token', $session_token, 2 * MINUTE_IN_SECONDS);
     set_transient($user->ID . '_t2s_pending_profile_update_data', $user, 2 * MINUTE_IN_SECONDS);
