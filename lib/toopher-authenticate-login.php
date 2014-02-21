@@ -80,6 +80,8 @@ function toopher_finish_authenticate_login($user){
                     $auth_granted = true;
                 } elseif ($error_code === '705') { # unknown user - allow in
                     $auth_granted = true;
+                } elseif (($error_code === '601') && (strpos($error_message, 'Pairing has not been authorized to authenticate') !== FALSE)) {
+                    $auth_granted = true;
                 }
             } else {
                 $auth_granted = ($validated_data['pending'] === 'false') && ($validated_data['granted'] === 'true');
@@ -87,6 +89,8 @@ function toopher_finish_authenticate_login($user){
             if($auth_granted){
                 $user = get_user_by('id', $pending_user_id);
                 $_POST['redirect_to'] = $redirect_to;
+            } else {
+                $user = new WP_Error('Toopher Authentication Failure', __('Unhandled Toopher API error code: ' . $error_code));
             }
             $_POST['toopher_authentication_successful'] = $auth_granted ? 'true' : 'false';
         } else {
