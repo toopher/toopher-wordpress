@@ -128,7 +128,7 @@ function toopher_login_pending($user){
     </head>
     <body>
         <div style="width:80%; text-align:center; margin-left: auto; margin-right: auto;">
-        <iframe id='toopher_iframe' style="display: inline-block; height:300px; width:100%; border: 1 px dashed red; padding: 10px;"  toopher_postback='<?php echo $postback_url ?>' toopher_req='<?php echo $signed_url ?>'></iframe>
+        <iframe id='toopher_iframe' style="display: inline-block; height:300px; width:100%;"  toopher_postback='<?php echo $postback_url ?>' toopher_req='<?php echo $signed_url ?>'></iframe>
         </div>
         <script>
 <?php  include('jquery.cookie.min.js') ?>
