@@ -23,10 +23,10 @@ function strip_wp_magic_quotes($s){
 add_filter('plugin_action_links', 'toopher_plugin_action_links', 10, 2);
 
 require_once('lib/toopher-web/toopher-web.php');
-require('lib/toopher-authenticate-login.php');
-require('lib/toopher-authenticate-profile-update.php');
-require('lib/toopher-user-options.php');
-require('lib/toopher-settings.php');
+require_once('lib/toopher-authenticate-login.php');
+require_once('lib/toopher-authenticate-profile-update.php');
+require_once('lib/toopher-user-options.php');
+require_once('lib/toopher-settings.php');
 
 if(!function_exists('_log')){
   function _log( $message ) {
