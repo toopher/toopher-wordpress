@@ -481,16 +481,18 @@ class OAuthRequest {
   private static function generate_timestamp() {
     return time();
   }
-
+    
   /**
-   * util function: current nonce
+   * util function: generate secure nonce
    */
-  private static function generate_nonce() {
-    $mt = microtime();
-    $rand = mt_rand();
-
-    return md5($mt . $rand); // md5s look nicer than numbers
+  private static function generate_nonce($size = 16) {
+    if (!function_exists('openssl_random_pseudo_bytes')) {
+      throw new \InvalidArgumentException('OpenSSL not supported.');
+    }
+    $hash = bin2hex(openssl_random_pseudo_bytes($size));
+    return substr($hash, 0, $size);
   }
+
 }
 
 class OAuthServer {
