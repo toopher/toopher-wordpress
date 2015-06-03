@@ -487,7 +487,7 @@ class OAuthRequest {
    */
   private static function generate_nonce($size = 16) {
     if (!function_exists('openssl_random_pseudo_bytes')) {
-      throw new \InvalidArgumentException('OpenSSL not supported.');
+      throw new \InvalidArgumentException('This PHP was built without OpenSSL support. Please install a PHP built with OpenSSL to use the Toopher-Wordpress plugin');
     }
     $hash = bin2hex(openssl_random_pseudo_bytes($size));
     return substr($hash, 0, $size);
